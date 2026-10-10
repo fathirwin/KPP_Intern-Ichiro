@@ -28,12 +28,12 @@ public:
     }
 };
 
-class lapangan {
+class field {
 private:
     char area[baris][kolom];
 
 public:
-    lapangan(){
+    field(){
         for(int i = 0; i < baris; i++){
             for(int j = 0; j < kolom; j++){
                 area[i][j] = '.';
@@ -54,10 +54,8 @@ public:
             }
         }
 
-        for (int i = 1; i <= 3; i++) {
-            int spread = i - 1; 
-        
-            for (int s = -spread; s <= spread; s++) {
+        for (int i = 1; i <= 3; i++){ 
+            for (int s = -i; s <= i; s++) {
                 int sx = robot.getx() + ax[arahrobot] * i;
                 int sy;
                 
@@ -81,25 +79,80 @@ public:
             temparea[robot.gety()][robot.getx()] = 'R';
         }
 
+        //cout << "\033[H";
         for (int b = 0; b < baris; b++) {
             for (int k = 0; k < kolom; k++) {
                 cout << temparea[b][k] << " ";
             }
             cout << "\n";
         }
+        //cout << "\033[J" << flush;
     }
 };
 
+class ball {
+private:
+    point posisi; 
+    int kx, ky;    
+
+public:
+    ball(int x, int y) {
+        posisi.setx(x);
+        posisi.sety(y);
+        kx = 0;
+        ky = 0;
+    }
+
+    point getposisi() const { 
+        return posisi; 
+    }
+
+    void kick(int arah, int power) {
+        kx = ax[arah] * power;
+        ky = ay[arah] * power;
+    }
+
+    void update() {
+        posisi.setx(posisi.getx() + kx);
+        posisi.sety(posisi.gety() + ky);
+        
+        if (kx > 0) {
+            kx = kx - 2;
+            if (kx < 0) {
+                kx = 0;
+            }
+        } else if (kx < 0) {
+            kx = kx + 2;
+            if (kx > 0) {
+                kx = 0;
+            }
+        }
+
+        if (ky > 0) {
+            ky = ky - 2;
+            if (ky < 0) {
+                ky = 0;
+            }
+        } else if (ky < 0) {
+            ky = ky + 2;
+            if (ky > 0) {
+                ky = 0;
+            }
+        }
+    }
+};
+
+
 int main(){
-    lapangan arena;
+    field arena;
 
     point robot;
     robot.setx(2);
     robot.sety(5); 
 
     point bola;
-    bola.setx(12);
-    bola.sety(2);
+    bola.setx(4);
+    bola.sety(3);
 
     int arahrobot = 0;
 
