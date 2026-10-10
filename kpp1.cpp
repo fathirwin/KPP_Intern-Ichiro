@@ -13,9 +13,12 @@ private:
     int y_val;
 
 public:
-    int getx() const {return x_val;}
-    int gety() const {return y_val;}
-
+    int getx() const {
+        return x_val;
+    }
+    int gety() const {
+        return y_val;
+    }
     void setx(int x){
         x_val = x;
     }
@@ -142,21 +145,151 @@ public:
     }
 };
 
+class robot {
+protected:
+    point posisi;
+    int arah;
+    int kecepatan;
+
+public:
+    robot(int x, int y, int dir) {
+        posisi.setx(x);
+        posisi.sety(y);
+        arah = dir;
+        kecepatan = 1;
+    }
+
+    point getposisi() const { 
+        return posisi; 
+    }
+
+    int getarah() const { 
+        return arah; 
+    }
+
+    void gerak(int arahbaru) {
+        int xbaru = posisi.getx() + ax[arahbaru] * kecepatan;
+        int ybaru = posisi.gety() + ay[arahbaru] * kecepatan;
+        
+        if (xbaru < 0 || xbaru >= kolom || ybaru < 0 || ybaru >= baris) {
+            cout << "robot keluar lapangan\n";
+        } else {
+            arah = arahbaru;
+            posisi.setx(xbaru);
+            posisi.sety(ybaru);
+        }
+    }
+
+    virtual void think(const point& posisibola) = 0; 
+    
+    bool cekbola(const point& posisibola) const {
+        for (int i = 1; i <= 3; i++) {
+            point depan;
+            depan.setx(posisi.getx() + ax[arah] * i);
+            depan.sety(posisi.gety() + ay[arah] * i);
+            
+            if (depan == posisibola) {
+                return true;
+            }
+        }
+        return false;
+    }
+};
+
+
+class striker : public robot {
+private:
+    int kondisi; 
+
+public:
+    striker(int x, int y) : robot(x, y, 0) {
+        kondisi = 0;
+    }
+
+    void think(const point& posisibola) {
+        if (kondisi == 0 || kondisi == 1) {
+            if (cekbola(posisibola)) {
+                kondisi = 2; 
+                cout << "Bola di depan\n";
+            } else {
+                kondisi = 1;
+                cout << "Mencari bola\n";
+            }
+        } else if (kondisi == 2) {
+            cout << "mode Kick.\n";
+        }
+    }
+
+    bool siapnendang() const { 
+        if (kondisi == 2) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    void reset() { 
+        kondisi = 0; 
+    }
+};
+
+class simulator {
+private:
+    field arena;
+    ball bola;
+    striker penyerang;
+    int tick;
+
+public:
+    simulator() : bola(0, 0), penyerang(5, 6) {
+        tick = 0;
+    }
+
+    void run() {
+        while (tick < 50) { 
+            cout << "\nTick " << tick << "\n";
+            arena.print(penyerang.getposisi(), bola.getposisi(), penyerang.getarah());
+
+            penyerang.think(bola.getposisi());
+
+            if (penyerang.siapnendang()) {
+                point depan;
+                depan.setx(penyerang.getposisi().getx() + ax[penyerang.getarah()]);
+                depan.sety(penyerang.getposisi().gety() + ay[penyerang.getarah()]);
+                
+                if (depan == bola.getposisi()) {
+                    bola.kick(penyerang.getarah(), 6); 
+                    penyerang.reset();
+                    cout << "tendang bola\n";
+                } else {
+                    penyerang.gerak(penyerang.getarah()); 
+                    cout << "mendekati bola.\n";
+                }
+            } else {
+                penyerang.gerak(penyerang.getarah());
+                cout << "gerak\n";
+            }
+
+            bola.update();
+
+            if (bola.getposisi().getx() >= kolom - 1) {
+                cout << "\nGOAL!\n";
+                break;
+            }
+
+            tick++;
+        }
+        
+        if (tick >= 50) {
+            cout << "\nwaktu habis\n";
+        }
+    }
+};
+
 
 int main(){
-    field arena;
-
-    point robot;
-    robot.setx(2);
-    robot.sety(5); 
-
-    point bola;
-    bola.setx(4);
-    bola.sety(3);
-
-    int arahrobot = 0;
-
-    arena.print(robot, bola, arahrobot);
+    simulator upin;
+    upin.run();
 
     return 0;
 }
