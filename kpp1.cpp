@@ -110,9 +110,9 @@ public:
         return posisi; 
     }
 
-    void kick(int arah, int power) {
-        kx = ax[arah] * power;
-        ky = ay[arah] * power;
+    void kick(int arah) {
+        kx = ax[arah] * 3;
+        ky = ay[arah] * 3;
     }
 
     void update() {
@@ -120,24 +120,24 @@ public:
         posisi.sety(posisi.gety() + ky);
         
         if (kx > 0) {
-            kx = kx - 2;
+            kx = kx - 1;
             if (kx < 0) {
                 kx = 0;
             }
         } else if (kx < 0) {
-            kx = kx + 2;
+            kx = kx + 1;
             if (kx > 0) {
                 kx = 0;
             }
         }
 
         if (ky > 0) {
-            ky = ky - 2;
+            ky = ky - 1;
             if (ky < 0) {
                 ky = 0;
             }
         } else if (ky < 0) {
-            ky = ky + 2;
+            ky = ky + 1;
             if (ky > 0) {
                 ky = 0;
             }
@@ -241,7 +241,7 @@ private:
     int tick;
 
 public:
-    simulator() : bola(0, 0), penyerang(5, 6) {
+    simulator() : bola(11, 6), penyerang(5, 6) {
         tick = 0;
     }
 
@@ -258,7 +258,7 @@ public:
                 depan.sety(penyerang.getposisi().gety() + ay[penyerang.getarah()]);
                 
                 if (depan == bola.getposisi()) {
-                    bola.kick(penyerang.getarah(), 6); 
+                    bola.kick(penyerang.getarah()); 
                     penyerang.reset();
                     cout << "tendang bola\n";
                 } else {
